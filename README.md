@@ -36,8 +36,3 @@ SuperSocial should expect:
 After tutorial is finished, this loop will continue infinitely.
 
 <div>&nbsp;</div>
-
-## About
-Savvy Salon
-
-## Documentation
