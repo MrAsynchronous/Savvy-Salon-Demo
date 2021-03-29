@@ -1,0 +1,12 @@
+*.sublime-project
+*.sublime-workspace
+*.jar
+*.rbxm
+*.bat
+*.jar
+*.rbxl
+*.txt
+
+!ModuleList.txt
+
+Exported.rbxm

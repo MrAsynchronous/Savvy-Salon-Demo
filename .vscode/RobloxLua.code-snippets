@@ -1,0 +1,131 @@
+{
+	//Boilerplate header
+	"Header": {
+		"scope": "lua",
+		"prefix": "header",
+		"body": [
+			"-- $TM_FILENAME_BASE",
+			"-- MrAsync",
+			"-- $CURRENT_MONTH/$CURRENT_DATE/$CURRENT_YEAR",
+			"",
+			"$0"
+		]
+	},
+
+	"ViewportSize": {
+		"scope": "lua",
+		"prefix": "ViewportSize",
+		"body": [
+			"local function GetCameraDistance(object, camera)",
+			"\tlocal objectSize = (object:IsA('Model') and object:GetModelSize() or object.Size)",
+			"\tlocal objectRadius = objectSize.Magnitude * 0.5",
+			"\tlocal halfFOV = math.rad(camera.FieldOfView / 2)",
+			"",
+			"\tlocal distance = objectRadius / math.tan(halfFOV)",
+			"\treturn distance",
+			"end"
+		]
+	},
+
+	"Singleton": {
+		"scope": "lua",
+		"prefix": "singleton",
+		"body": [
+			"-- $TM_FILENAME_BASE",
+			"-- MrAsync",
+			"-- $CURRENT_MONTH/$CURRENT_DATE/$CURRENT_YEAR",
+			"",
+			"",
+			"local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Nevermore'))",
+			"",
+			"local Promise = require('Promise')",
+			"",
+			"return function(playerManager)",
+				"\treturn Promise.new(function(resolve, reject)",
+					"\t\t$0",
+				"\tend)",
+			"end"
+		]
+	},
+
+	"Class": {
+		"scope": "lua",
+		"prefix": "class",
+		"body": [
+			"-- $TM_FILENAME_BASE",
+			"-- MrAsync",
+			"-- $CURRENT_MONTH/$CURRENT_DATE/$CURRENT_YEAR",
+			"",
+			"",
+			"local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Nevermore'))",
+			"",
+			"local BaseObject = require('BaseObject')",
+			"",
+			"local $TM_FILENAME_BASE = setmetatable({}, BaseObject)",
+			"$TM_FILENAME_BASE.__index = $TM_FILENAME_BASE",
+			"",
+			"function $TM_FILENAME_BASE.new()",
+				"\tlocal self = setmetatable(BaseObject.new(), $TM_FILENAME_BASE)",
+				"\t",
+				"\treturn self",
+			"end",
+			"",
+			"function $TM_FILENAME_BASE:Destroy()",
+			"\t",
+			"end",
+			"",
+			"return $TM_FILENAME_BASE"
+		]
+	},
+
+	"Module": {
+		"scope": "lua",
+		"prefix": "module",
+		"body": [
+			"-- $TM_FILENAME_BASE",
+			"-- MrAsync",
+			"-- $CURRENT_MONTH/$CURRENT_DATE/$CURRENT_YEAR",
+			"",
+			"",
+			"local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Nevermore'))",
+			"",
+			"local $TM_FILENAME_BASE = {}",
+				"\t$0",
+			"return $TM_FILENAME_BASE"
+		]
+	},	
+
+	"Stub": {
+		"scope": "lua",
+		"prefix": "stub",
+		"body": [
+			"-- $TM_FILENAME_BASE",
+			"-- MrAsync",
+			"-- $CURRENT_MONTH/$CURRENT_DATE/$CURRENT_YEAR",
+			"",
+			"",
+			"local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Nevermore'))",
+			"",
+			"$0"
+		]
+	},
+
+	"Config": {
+		"scope": "lua",
+		"prefix": "config",
+		"body": [
+			"-- $TM_FILENAME_BASE",
+			"-- MrAsync",
+			"-- $CURRENT_MONTH/$CURRENT_DATE/$CURRENT_YEAR",
+			"",
+			"",
+			"local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Nevermore'))",
+			"",
+			"local Table = require('Table')",
+			"",
+			"return Table.readonly({",
+				"\t$0",
+			"})"
+		]
+	}
+}

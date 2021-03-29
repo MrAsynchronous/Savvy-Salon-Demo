@@ -1,0 +1,57 @@
+{
+  "name": "Lunar",
+  "tree": {
+    "$className": "DataModel",
+    "HttpService": {
+      "$className": "HttpService",
+      "$properties": {
+        "HttpEnabled": true
+      }
+    },
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Nevermore": {
+        "$path": "./Loader"
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Nevermore": {
+        "$className": "Folder",
+        "Core": {
+          "$path": "src/Nevermore"
+        },
+        "Modules": {
+          "$path": "src/modules"
+        }
+      },
+      "$path": "src/scripts/Server"
+    },
+    "ReplicatedFirst": {
+      "$className": "ReplicatedFirst",
+      "RuntimeScripts": {
+        "$className": "Folder",
+        "$path": "src/scripts/ReplicatedFirst"
+      }
+    },
+    "SoundService": {
+      "$className": "SoundService",
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    },
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": {
+        "FilteringEnabled": true
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "src/scripts/Client"
+      }
+    }
+  }
+}
