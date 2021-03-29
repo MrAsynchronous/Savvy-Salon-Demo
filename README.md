@@ -11,7 +11,6 @@
 	</a>
 </div>
 
-<div align="center">
 # Overall Goal
 
 Overall, we want to create a great experience for the team over at SuperSocial. With this demo, we plan to execute a basic tutorial (how the game will open) so that they can see the basic user experience we are aiming for.
@@ -20,7 +19,7 @@ Overall, we want to create a great experience for the team over at SuperSocial. 
 
 ---
 
-# What the SuperSocial should expect
+# What the SuperSocial Team should expect
 
 SuperSocial should expect:
 
@@ -35,8 +34,6 @@ SuperSocial should expect:
 - NPC will pay, and leave.
 
 After tutorial is finished, this loop will continue infinitely.
-
-</div>
 
 <div>&nbsp;</div>
 
