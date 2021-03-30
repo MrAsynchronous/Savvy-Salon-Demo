@@ -32,10 +32,10 @@ function PlacementService:StartPlacing(itemName)
 
     _maid:GiveTask(session.Placed:Connect(function(worldPosition)
         if (self._PlaceLock) then 
-            return SignalProvider:Get("PushNotification"):Fire("Can't place while Natasha is talking!")
+            return SignalProvider:Get("PushNotification"):Fire({Text = "Can't place while Natasha is talking!"})
         end
         if (TutorialRunner.FirstNpc.Moving) then
-            return SignalProvider:Get("PushNotification"):Fire("Can't place while NPC is moving!")
+            return SignalProvider:Get("PushNotification"):Fire({Text = "Can't place while NPC is moving!"})
         end
         
         NetworkService:Request("RequestItemPlace", itemName, worldPosition):Then(function(object)

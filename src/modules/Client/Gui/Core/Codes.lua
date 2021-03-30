@@ -46,7 +46,7 @@ function Codes.new()
 
     self.Gui.Redeem.MouseButton1Click:Connect(function()
         NetworkService:Request("RequestCodeSubmit", self.Gui.CodeInput.Text):Then(function()
-        
+            SignalProvider:Get("PushNotification"):Fire({Text = "Code Redeemed!"})
         end)
     end)
 

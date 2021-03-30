@@ -7,9 +7,11 @@ local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Never
 
 local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
 local PlacementService = require("PlacementService")
 
+local FurnitureTemplates = require("FurnitureTemplates")
 local NetworkService = require("NetworkService")
 local SignalProvider = require("SignalProvider")
 local GuiTemplates = require("GuiTemplates")
@@ -24,6 +26,15 @@ local Dependencies = {
 
 local Inventory = setmetatable({}, BasicPane)
 Inventory.__index = Inventory
+
+local function GetCameraDistance(object, camera)
+    local objectSize = (object:IsA('Model') and object:GetModelSize() or object.Size)
+    local objectRadius = objectSize.Magnitude * 0.5
+    local halfFOV = math.rad(camera.FieldOfView / 2)
+
+    local distance = objectRadius / math.tan(halfFOV)
+    return distance
+end
 
 function Inventory.new()
     local self = setmetatable(BasicPane.new(GuiTemplates:Clone("InventoryTemplate")), Inventory)
@@ -58,6 +69,20 @@ function Inventory.new()
     for _, child in pairs(self.Gui.Container:GetChildren()) do
         if (not child:IsA("ImageButton")) then continue end
 
+        local camera = Instance.new("Camera")
+        camera.Parent = child.Viewport
+
+        local object = FurnitureTemplates:Clone(child.Name)
+        object.Parent = child.Viewport
+        object:SetPrimaryPartCFrame(CFrame.new(0, 0, 0))
+
+        child.Viewport.CurrentCamera = camera
+
+        local primaryPart = object.PrimaryPart
+        local objectSize = object.PrimaryPart.Size
+        local objectCFrame = primaryPart.CFrame
+        camera.CFrame = CFrame.new(objectCFrame.Position + Vector3.new(0, objectSize.Y + 2, 0) + (objectCFrame.LookVector * (GetCameraDistance(object, camera) + 3)), objectCFrame.Position)
+
         child.MouseButton1Click:Connect(function()
             SoundService.Click:Play()
 
@@ -69,6 +94,20 @@ function Inventory.new()
             child:Destroy()
         end)
     end
+
+    local rot = 0
+    RunService.RenderStepped:Connect(function()
+        rot -= 0.4
+
+        for _, child in pairs(self.Gui.Container:GetChildren()) do
+            if (not child:IsA("ImageButton")) then continue end
+
+            local object = child.Viewport:FindFirstChildOfClass("Model")
+            local objectCFrame = object.PrimaryPart.CFrame
+
+            object:SetPrimaryPartCFrame(CFrame.new(objectCFrame.Position) * CFrame.Angles(0, math.rad(rot), 0))
+        end
+    end)
 
     return self
 end
