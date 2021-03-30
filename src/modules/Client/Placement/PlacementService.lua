@@ -31,8 +31,8 @@ function PlacementService:StartPlacing(itemName)
     _maid:GiveTask(session.Placed:Connect(function(worldPosition)
         if (self._PlaceLock) then return end
         
-        NetworkService:Request("RequestItemPlace", itemName, worldPosition):Then(function()
-            self.ItemPlaced:Fire(itemName)
+        NetworkService:Request("RequestItemPlace", itemName, worldPosition):Then(function(object)
+            self.ItemPlaced:Fire(itemName, object)
 
             self:StopPlacing()
         end)
@@ -70,13 +70,6 @@ function PlacementService:Init()
     self.ItemPlaceBegan = SignalProvider:Get("ItemPlaceBegan")
     self.ItemPlaced = SignalProvider:Get("ItemPlaced")
     self._PlaceLock = false
-
-    -- Test
-    UserInputService.InputBegan:Connect(function(inputObject, gameProcessed)
-        if (inputObject.KeyCode == Enum.KeyCode.F) then
-            self:StartPlacing("BarberChair")
-        end
-    end)
 end
 
 return PlacementService

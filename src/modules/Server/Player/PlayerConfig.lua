@@ -12,7 +12,7 @@ return Table.readonly({
     DataKey = "PlayerData_PreAlpha_V1",
 
     DataSchema = {
-        Coins = 0,
+        Cash = 0,
 
         _Visits = 0,
         _Playtime = 0

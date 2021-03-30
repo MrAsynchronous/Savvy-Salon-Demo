@@ -7,6 +7,7 @@ local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Never
 
 local PathfindingService = game:GetService("PathfindingService")
 local UserInputService = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -18,6 +19,7 @@ local CameraService = require("CameraService")
 local GuiTemplates = require("GuiTemplates")
 local GuiRegistry = require("GuiRegistry")
 local Config = require("TutorialConfig")
+local Npc = require("Npc")
 
 local Path = PathfindingService:CreatePath()
 local Player = Players.LocalPlayer
@@ -41,6 +43,8 @@ function TutorialRunner:RunGrapheme(dontShowOnFinish)
     local words = string.split(dialogData.Text, " ")
     local currentWord = 0
 
+    SoundService.Dialog:Play()
+
     RunService:BindToRenderStep("NpcGrapheme", 1, function()
         if (tick() - LastUpdate < .06) then return end
         LastUpdate = tick()
@@ -57,6 +61,8 @@ function TutorialRunner:RunGrapheme(dontShowOnFinish)
             if (dontShowOnFinish == nil) then
                 self:ShowNextButton()
             end
+
+            SoundService.Dialog:Stop()
 
             PlacementService:SetPlaceLock(false)
             RunService:UnbindFromRenderStep("NpcGrapheme")
@@ -77,6 +83,11 @@ function TutorialRunner:AdvanceDialog()
         sidebarGui.Arrow.Visible = false
 
         self.OnScreenDialog.Visible = false
+        self.FirstNpc.Prompt.Enabled = true
+
+        local deskCFrame = self.PlacedItems.SecretaryDesk.PrimaryPart.CFrame
+        local deskSize = self.PlacedItems.SecretaryDesk.PrimaryPart.Size * deskCFrame.LookVector
+        self.FirstNpc:MoveToPoint(deskCFrame.Position + ((deskCFrame.LookVector * deskSize.Magnitude)))
 
         SignalProvider:Get("SidebarButtonClicked"):Connect(function(name)
             if (name ~= "Inventory") then return end
@@ -155,6 +166,12 @@ function TutorialRunner:AdvanceDialog()
             tween.Completed:Wait()
         end
 
+        self.Npc.PrimaryPart.Anchored = true
+
+        self.SalonObject.DESTROY1:Destroy()
+        self.SalonObject.DESTROY2:Destroy()
+        self.SalonObject.Door.CanCollide = false
+
         animation:Destroy()
         track:Stop()
 
@@ -168,10 +185,13 @@ function TutorialRunner:AdvanceDialog()
         self.OnScreenDialog.Visible = true
 
         self:RunGrapheme()
+        self.FirstNpc = Npc.new("Charlette", CFrame.new(self.SalonObject.FirstNpc.Position, self.SalonObject.CharacterSpawnLookPoint.Position), true)
+        self.FirstNpc:RunAnimation("507770239")
         
         delay(1, function()
             local currentCFrame = CameraService:GetCamera().CFrame
             CameraService:MoveToPoint(CFrame.new(currentCFrame.Position, self.SalonObject.OhNoPoint.Position), false, 1)
+            SoundService.Gasp:Play()
     
             spawn(function()
                 delay(1, function()
@@ -184,6 +204,12 @@ function TutorialRunner:AdvanceDialog()
         Player.Character.PrimaryPart.Anchored = false
 
         CameraService:ReturnToPlayer()
+
+        self.SalonObject.CharacterSpawnLookPoint:Destroy()
+        self.SalonObject.CharacterSpawnPoint:Destroy()
+        self.SalonObject.NatashaLookPoint:Destroy()
+        self.SalonObject.NatashaPoint:Destroy()
+        self.SalonObject.OhNoPoint:Destroy()
 
         -- Make arrow go boop
         local sidebarGui = GuiRegistry:GetGui("Sidebar").Gui
@@ -216,8 +242,10 @@ function TutorialRunner:AdvanceDialog()
         inventory:SetVisible(true)
 
         local connection
-        connection = SignalProvider:Get("ItemPlaced"):Connect(function(name)
+        connection = SignalProvider:Get("ItemPlaced"):Connect(function(name, object)
             if (name ~= dialogData.ItemName) then return end
+
+            self.PlacedItems[name] = object
 
             connection:Disconnect()
             self:ShowNextButton()
@@ -286,6 +314,8 @@ function TutorialRunner:Init()
     self.OnScreenDialog = GuiRegistry:GetGui("Dialog").Gui
     self.OnScreenTextLabel = self.OnScreenDialog.TextContainer.Label
     self.OnScreenInfoContainer = self.OnScreenDialog.TextContainer.InfoContainer
+
+    self.PlacedItems = {}
 
     TweenService:Create(GuiRegistry:GetGui("Inventory").Gui.Arrow,
         TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, -1, true),

@@ -15,6 +15,6 @@ return function(playerManager, itemName, worldPosition)
         local furnitureObject = Furniture.new(playerManager, itemName, worldPosition)
         salon:CachePlacement(furnitureObject)
 
-        resolve()
+        resolve(furnitureObject.Object)
     end)
 end

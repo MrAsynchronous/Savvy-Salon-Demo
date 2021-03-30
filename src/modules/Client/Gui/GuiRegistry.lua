@@ -60,13 +60,6 @@ function GuiRegistry:Init()
     self:RegisterGui("Dialog", require("Dialog").new())
     self:RegisterGui("Sidebar", require("Sidebar").new())
     self:RegisterGui("Inventory", require("Inventory").new())
-
-    -- Handle cash effect
-    DataService:GetUpdateSignal("Cash"):Connect(function(newValue, oldValue)
-        if (newValue < oldValue) then return end
-
-        self:RegisterGui("_CashEffect", require("CashEffect").new(newValue))
-    end)
 end
     
 return GuiRegistry
