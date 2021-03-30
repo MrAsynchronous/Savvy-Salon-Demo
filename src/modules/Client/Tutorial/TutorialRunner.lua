@@ -20,9 +20,7 @@ local GuiTemplates = require("GuiTemplates")
 local GuiRegistry = require("GuiRegistry")
 local Config = require("TutorialConfig")
 local NpcService = require("NpcService")
-local Npc = require("Npc")
 
-local Path = PathfindingService:CreatePath()
 local Player = Players.LocalPlayer
 local DialogData = Config.Dialog
 local CurrentDialog = 0
@@ -85,6 +83,7 @@ function TutorialRunner:AdvanceDialog()
 
         self.OnScreenDialog.Visible = false
         self.FirstNpc.Prompt.Enabled = true
+        self.InputConnection:Disconnect()
 
         NpcService:StartLoop(self.PlacedItems)
 
@@ -165,7 +164,7 @@ function TutorialRunner:AdvanceDialog()
             tween.Completed:Wait()
         end
 
-        self.Npc.PrimaryPart.Anchored = true
+        -- self.Npc.PrimaryPart.Anchored = true
 
         self.SalonObject.DESTROY1:Destroy()
         self.SalonObject.DESTROY2:Destroy()
@@ -188,13 +187,14 @@ function TutorialRunner:AdvanceDialog()
         self.FirstNpc = NpcService:CreateNpc(true)
         self.FirstNpc:RunAnimation("507770239")
         
-        delay(1, function()
+        SoundService.Gasp:Play()
+        
+        delay(1.5, function()
             local currentCFrame = CameraService:GetCamera().CFrame
             CameraService:MoveToPoint(CFrame.new(currentCFrame.Position, self.SalonObject.OhNoPoint.Position), false, 1)
-            SoundService.Gasp:Play()
     
             spawn(function()
-                delay(1, function()
+                delay(1.5, function()
                     self.Npc:SetPrimaryPartCFrame(CFrame.new(0, 1000, 0))
                 end)
             end)
@@ -204,12 +204,6 @@ function TutorialRunner:AdvanceDialog()
         Player.Character.PrimaryPart.Anchored = false
 
         CameraService:ReturnToPlayer()
-
-        -- self.SalonObject.CharacterSpawnLookPoint:Destroy()
-        -- self.SalonObject.CharacterSpawnPoint:Destroy()
-        -- self.SalonObject.NatashaLookPoint:Destroy()
-        -- self.SalonObject.NatashaPoint:Destroy()
-        -- self.SalonObject.OhNoPoint:Destroy()
 
         -- Make arrow go boop
         local sidebarGui = GuiRegistry:GetGui("Sidebar").Gui
@@ -274,7 +268,7 @@ end
 
 --// Begings the whole process
 function TutorialRunner:EnterDialog()
-    UserInputService.InputBegan:Connect(function(inputObject, gameProcessed)
+    self.InputConnection = UserInputService.InputBegan:Connect(function(inputObject, gameProcessed)
         if (gameProcessed) then return end
 
         if (inputObject.KeyCode == Enum.KeyCode.Space) then
@@ -333,8 +327,7 @@ function TutorialRunner:Init()
 
     GuiRegistry:RegisterGui("NatashaDialog", {Gui = self.DialogGui})
 
-    -- Wait a few seconds before entering dialog
-    delay(3, function()
+    SignalProvider:Get("PlayButtonClicked"):Connect(function()
         self:EnterDialog()
     end)
 end

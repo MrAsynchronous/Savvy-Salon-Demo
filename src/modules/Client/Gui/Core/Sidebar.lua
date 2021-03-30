@@ -5,6 +5,8 @@
 
 local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Nevermore'))
 
+local SoundService = game:GetService("SoundService")
+
 local SignalProvider = require("SignalProvider")
 local GuiTemplates = require("GuiTemplates")
 local BasicPane = require('BasicPane')
@@ -21,6 +23,9 @@ function Sidebar.new()
         if (frame:IsA("ImageLabel")) then continue end
 
         frame.Button.MouseButton1Click:Connect(function()
+            SoundService.Click:Play()
+
+            print(frame.Name)
             self.SidebarButtonClicked:Fire(frame.Name)
         end)
     end

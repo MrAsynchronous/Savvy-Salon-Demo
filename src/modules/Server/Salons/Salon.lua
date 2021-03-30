@@ -24,6 +24,8 @@ function Salon.new(player, salonObject)
     self.Placements = {}
     self.PlacementContainer = self.Object.Placements
 
+    self.Object.Npcs.Natasha.PrimaryPart:SetNetworkOwner(player.Player)
+
     -- Move character to plot
     self._maid:GiveTask(self.Player.CharacterAdded:Connect(function(character)
         local rootPart = character:WaitForChild("HumanoidRootPart")

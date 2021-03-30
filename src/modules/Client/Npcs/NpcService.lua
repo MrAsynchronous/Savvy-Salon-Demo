@@ -5,8 +5,7 @@
 
 local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Nevermore'))
 
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
+local SoundService = game:GetService("SoundService")
 
 local NetworkService = require("NetworkService")
 local Npc = require("Npc")
@@ -42,23 +41,45 @@ function NpcService:CreateNpc(isFirstNpc)
         npcObject._maid:GiveTask(self.Salon.Placements.ChildAdded:Connect(function(child)
             delay(0.5, function()
                 local childCFrame = child.PrimaryPart.CFrame
-
                 npcObject.Character.PrimaryPart.Anchored = false
-                npcObject:MoveToPoint(childCFrame.Position + (child.Name == "SecretaryDesk" and childCFrame.LookVector * 5 or Vector3.new()))
-                
+
+                npcObject:MoveToPoint(childCFrame.Position + (child.Name == "SecretaryDesk" and childCFrame.LookVector * 5 or Vector3.new(0, 0, 0)))
+
                 if (child.Name ~= "SecretaryDesk") then
-                    npcObject.Character.Humanoid.Sit = true
+                    npcObject.Character:SetPrimaryPartCFrame(child.Seat.CFrame + Vector3.new(0, 1.5, 0))
                     npcObject.Character.PrimaryPart.Anchored = true
-                elseif (child.Name == "CuttingStation") then
-                    delay(5, function()
-                        npcObject:MoveToPoint(self.Salon.NpcExitPoint.Position)
-                        npcObject:Destroy()
-                    end)
+
+                    npcObject:RunAnimation("2506281703")
+
+                    if (child.Name == "CuttingStation") then
+                        npcObject.Character.Head.CutParticle.Enabled = true
+
+                        delay(2.5, function()
+                            npcObject.Character.Before:Destroy()
+                            npcObject.Character.After.Transparency = 0
+                        end)
+
+                        delay(5, function()
+                            npcObject.Character.Head.CutParticle.Enabled = false
+                            npcObject.Character.PrimaryPart.Anchored = false
+
+                            npcObject:MoveToPoint(self.Salon.NpcExitPoint.Position)
+                            npcObject:Destroy()
+                        end)
+                    elseif (child.Name == "ShampooStation") then
+                        child.Bubbles.Emitter.Enabled = true
+                        child.Water.Emitter.Enabled = true
+                        SoundService.Water:Play()
+
+                        delay(5, function()
+                            child.Bubbles.Emitter.Enabled = false
+                            child.Water.Emitter.Enabled = false
+                            SoundService.Water:Stop()
+                        end)
+                    end
                 end
             end)
         end))
-
-        return npcObject
     else
         local deskCFrame = self.SecretaryDesk.PrimaryPart.CFrame
         npcObject:MoveToPoint(deskCFrame.Position + (deskCFrame.LookVector * 5))
@@ -79,7 +100,7 @@ function NpcService:CreateNpc(isFirstNpc)
 
         -- Create new NP
 
-        npcObject.Character.PrimaryPart.Anchored = false
+        --vnpcObject.Character.PrimaryPart.Anchored = false
         npcObject.Prompt.Enabled = false
         npcObject.StateLock = true
         npcObject.State += 1
@@ -88,19 +109,57 @@ function NpcService:CreateNpc(isFirstNpc)
         if (npcObject.State == 2) then
             local waitingChairPoint = self.WaitingChair.PrimaryPart.Position
             npcObject:MoveToPoint(waitingChairPoint)
+
+            npcObject.Character:SetPrimaryPartCFrame(self.WaitingChair.Seat.CFrame + Vector3.new(0, 1.5, 0))
         elseif (npcObject.State == 3) then
             local shampooStationPoint = self.ShampooStation.PrimaryPart.Position
             npcObject:MoveToPoint(shampooStationPoint)
+
+            self.ShampooStation.Bubbles.Emitter.Enabled = true
+            self.ShampooStation.Water.Emitter.Enabled = true
+            SoundService.Water:Play()
+
+            npcObject.Character:SetPrimaryPartCFrame(self.ShampooStation.Seat.CFrame + Vector3.new(0, 1.5, 0))
         elseif (npcObject.State == 4) then
             local cuttingStationPoint = self.CuttingStation.PrimaryPart.Position
             npcObject:MoveToPoint(cuttingStationPoint)
+
+            npcObject.Character.Head.CutParticle.Enabled = true
+
+            delay(2.5, function()
+                npcObject.Character.Before:Destroy()
+                npcObject.Character.After.Transparency = 0
+            end)
+
+            npcObject.Character:SetPrimaryPartCFrame(self.CuttingStation.Seat.CFrame + Vector3.new(0, 1.5, 0))
         end
 
-        npcObject.Character.Humanoid.Sit = true
         npcObject.Character.PrimaryPart.Anchored = true
+        npcObject:RunAnimation("2506281703")
 
-        delay(0, function()
-            if (npcObject.State > 4) then
+        local timer = npcObject.Character.Head.Timer
+        timer.Enabled = true
+        timer.Container.Label.Text = 5
+
+        spawn(function()
+            for i = 5, 1, -1 do
+                timer.Container.Label.Text = i
+
+                wait(1)
+            end
+
+            timer.Enabled = false
+        end)
+
+        delay(5, function()
+            if (npcObject.State == 3) then
+                self.ShampooStation.Bubbles.Emitter.Enabled = false
+                self.ShampooStation.Water.Emitter.Enabled = false
+                SoundService.Water:Stop()
+            elseif (npcObject.State >= 4) then
+                npcObject.Character.Head.CutParticle.Enabled = false
+                --npcObject.Character.PrimaryPart.Anchored = false
+
                 local exitPoint = self.Salon.NpcExitPoint.Position
                 npcObject:MoveToPoint(exitPoint)
 

@@ -7,6 +7,7 @@ local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Never
 
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 
 local Templates = require("FurnitureTemplates")
@@ -48,10 +49,9 @@ function Placement.new(SalonObject, itemName)
     self.Rotation = 0
 
     self.Mouse.TargetFilter = self.Salon
-
     -- Create raycastParams
     self.RaycastParams = RaycastParams.new()
-    self.RaycastParams.FilterDescendantsInstances = {self.Player.Character, self.Object}
+    self.RaycastParams.FilterDescendantsInstances = {self.Player.Character, self.Object, self.Salon}
 
     self.Object.PrimaryPart.Transparency = 0.5
     self.Object.PrimaryPart.Color = Config.PrimaryPartColor
@@ -85,9 +85,20 @@ function Placement.new(SalonObject, itemName)
     return self
 end
 
+function Placement:GetRay(distance)
+	local mousePos = UserInputService:GetMouseLocation()
+	local viewportMouseRay = CameraService:GetCamera():ViewportPointToRay(mousePos.X, mousePos.Y)
+	return Ray.new(viewportMouseRay.Origin, viewportMouseRay.Direction * distance)
+end
+
 --// Updates the position relative to the mouse
 function Placement:_UpdatePosition()
-    local clampedPosition = self:_ClampVector(self.Mouse.Hit.Position)
+    local ray = self:GetRay(250)
+
+    local result = Workspace:Raycast(ray.Origin, ray.Direction * 500, self.RaycastParams)
+    if (not result) then return end
+
+    local clampedPosition = self:_ClampVector(result.Position)
 
     self.DummyPart.CFrame = clampedPosition
     self.Object:SetPrimaryPartCFrame(self.Object.PrimaryPart.CFrame:Lerp(

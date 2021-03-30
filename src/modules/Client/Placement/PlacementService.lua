@@ -20,6 +20,8 @@ local _maid = Maid.new()
 function PlacementService:StartPlacing(itemName)
     if (PlacementService:IsPlacing()) then PlacementService:StopPlacing() end
 
+    local TutorialRunner = require("TutorialRunner")
+
     self.ItemPlaceBegan:Fire(itemName)
 
     local session = Placement.new(SalonObject, itemName)
@@ -29,7 +31,12 @@ function PlacementService:StartPlacing(itemName)
     SalonObject.PrimaryPart.Grid.Transparency = 0.5
 
     _maid:GiveTask(session.Placed:Connect(function(worldPosition)
-        if (self._PlaceLock) then return end
+        if (self._PlaceLock) then 
+            return SignalProvider:Get("PushNotification"):Fire("Can't place while Natasha is talking!")
+        end
+        if (TutorialRunner.FirstNpc.Moving) then
+            return SignalProvider:Get("PushNotification"):Fire("Can't place while NPC is moving!")
+        end
         
         NetworkService:Request("RequestItemPlace", itemName, worldPosition):Then(function(object)
             self.ItemPlaced:Fire(itemName, object)

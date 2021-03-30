@@ -5,14 +5,22 @@
 
 local require = require(game:GetService('ReplicatedStorage'):WaitForChild('Nevermore'))
 
+local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 
 local PlacementService = require("PlacementService")
 
+local NetworkService = require("NetworkService")
 local SignalProvider = require("SignalProvider")
 local GuiTemplates = require("GuiTemplates")
-local GuiRegistry = require("GuiRegistry")
 local BasicPane = require('BasicPane')
+
+local Dependencies = {
+    SecretaryDesk = "None",
+    WaitingChair = "SecretaryDesk",
+    ShampooStation = "WaitingChair",
+    CuttingStation = "ShampooStation"
+}
 
 local Inventory = setmetatable({}, BasicPane)
 Inventory.__index = Inventory
@@ -21,6 +29,10 @@ function Inventory.new()
     local self = setmetatable(BasicPane.new(GuiTemplates:Clone("InventoryTemplate")), Inventory)
 
     self.SidebarButtonClicked = SignalProvider:Get("SidebarButtonClicked")
+
+    NetworkService:Request("RequestSalon"):Then(function(salon)
+        self.Salon = salon
+    end)
 
     self.Gui.CloseButton.MouseButton1Click:Connect(function()
         self:Toggle()
@@ -47,6 +59,10 @@ function Inventory.new()
         if (not child:IsA("ImageButton")) then continue end
 
         child.MouseButton1Click:Connect(function()
+            SoundService.Click:Play()
+
+            if (Dependencies[child.Name] ~= "None" and not self.Salon.Placements:FindFirstChild(Dependencies[child.Name])) then return end
+
             PlacementService:StartPlacing(child.Name)
 
             self:Toggle()

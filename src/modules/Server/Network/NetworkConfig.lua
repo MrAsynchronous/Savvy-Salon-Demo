@@ -9,7 +9,8 @@ local Table = require('Table')
 
 return Table.readonly({
     Signals = {
-        "PlayerDataReplicator"
+        "PlayerDataReplicator",
+        "PushNotification"
     },
 
     Endpoints = {
@@ -22,6 +23,9 @@ return Table.readonly({
         RequestSalon = require("RequestSalon"),
 
         -- Placement
-        RequestItemPlace = require("RequestItemPlace")
+        RequestItemPlace = require("RequestItemPlace"),
+
+        -- Code
+        RequestCodeSubmit = require("RequestCodeSubmit")
     }
 })

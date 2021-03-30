@@ -34,14 +34,13 @@ function Npc.new(salon, npcName, spawnPoint)
     self.Prompt.RequiresLineOfSight = false
     self.Prompt.ActionText = "Interact"
     self.Prompt.ObjectText = npcName
-    self.Prompt.HoldDuration = 5
+    self.Prompt.HoldDuration = 0.25
     self.Prompt.Enabled = false
     self._maid:GiveTask(self.Prompt)
 
     self.State = 1
-    self.LastState = 1
-    self.StateLock = false
-    
+    self.Moving = false
+
     -- Get salon
     NetworkService:Request("RequestSalon"):Then(function(salon)
         self.Salon = salon
@@ -85,6 +84,8 @@ function Npc:RunAnimation(animationId)
 end
 
 function Npc:MoveToPoint(point)
+    self.Moving = true
+
     -- Generate path waypoints
     local path = PathfindingService:FindPathAsync(self.Character.PrimaryPart.Position, point)
     local waypoints = path:GetWaypoints()
@@ -101,7 +102,7 @@ function Npc:MoveToPoint(point)
     for i, waypoint in pairs(waypoints) do
         normalizedWaypoints[i] = Vector3.new(
             waypoint.Position.X,
-            self.Character.PrimaryPart.Position.Y,
+            4.25, --self.Salon.PrimaryPart.Position.Y + ((0.5 * self.Character.PrimaryPart.Size.Y) + self.Character.Humanoid.HipHeight),
             waypoint.Position.Z
         )
     end
@@ -128,6 +129,8 @@ function Npc:MoveToPoint(point)
 
         track:Stop()
     end
+
+    self.Moving = false
 end
 
 function Npc:Destroy()

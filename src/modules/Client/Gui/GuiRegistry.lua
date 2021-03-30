@@ -60,6 +60,9 @@ function GuiRegistry:Init()
     self:RegisterGui("Dialog", require("Dialog").new())
     self:RegisterGui("Sidebar", require("Sidebar").new())
     self:RegisterGui("Inventory", require("Inventory").new())
+    self:RegisterGui("PlayButton", require("PlayButton").new())
+    self:RegisterGui("Codes", require("Codes").new())
+    self:RegisterGui("NotificationContainer", require("NotificationContainer").new())
 end
     
 return GuiRegistry
