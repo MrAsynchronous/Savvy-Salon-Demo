@@ -19,6 +19,7 @@ local CameraService = require("CameraService")
 local GuiTemplates = require("GuiTemplates")
 local GuiRegistry = require("GuiRegistry")
 local Config = require("TutorialConfig")
+local NpcService = require("NpcService")
 local Npc = require("Npc")
 
 local Path = PathfindingService:CreatePath()
@@ -85,9 +86,7 @@ function TutorialRunner:AdvanceDialog()
         self.OnScreenDialog.Visible = false
         self.FirstNpc.Prompt.Enabled = true
 
-        local deskCFrame = self.PlacedItems.SecretaryDesk.PrimaryPart.CFrame
-        local deskSize = self.PlacedItems.SecretaryDesk.PrimaryPart.Size * deskCFrame.LookVector
-        self.FirstNpc:MoveToPoint(deskCFrame.Position + ((deskCFrame.LookVector * deskSize.Magnitude)))
+        NpcService:StartLoop(self.PlacedItems)
 
         SignalProvider:Get("SidebarButtonClicked"):Connect(function(name)
             if (name ~= "Inventory") then return end
@@ -185,7 +184,8 @@ function TutorialRunner:AdvanceDialog()
         self.OnScreenDialog.Visible = true
 
         self:RunGrapheme()
-        self.FirstNpc = Npc.new("Charlette", CFrame.new(self.SalonObject.FirstNpc.Position, self.SalonObject.CharacterSpawnLookPoint.Position), true)
+
+        self.FirstNpc = NpcService:CreateNpc(true)
         self.FirstNpc:RunAnimation("507770239")
         
         delay(1, function()
@@ -205,11 +205,11 @@ function TutorialRunner:AdvanceDialog()
 
         CameraService:ReturnToPlayer()
 
-        self.SalonObject.CharacterSpawnLookPoint:Destroy()
-        self.SalonObject.CharacterSpawnPoint:Destroy()
-        self.SalonObject.NatashaLookPoint:Destroy()
-        self.SalonObject.NatashaPoint:Destroy()
-        self.SalonObject.OhNoPoint:Destroy()
+        -- self.SalonObject.CharacterSpawnLookPoint:Destroy()
+        -- self.SalonObject.CharacterSpawnPoint:Destroy()
+        -- self.SalonObject.NatashaLookPoint:Destroy()
+        -- self.SalonObject.NatashaPoint:Destroy()
+        -- self.SalonObject.OhNoPoint:Destroy()
 
         -- Make arrow go boop
         local sidebarGui = GuiRegistry:GetGui("Sidebar").Gui

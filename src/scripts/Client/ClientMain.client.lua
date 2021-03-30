@@ -33,6 +33,7 @@ require("GuiRegistry"):Init()
 
 -- Low level things
 require("TutorialRunner"):Init()
+require("NpcService"):Init()
 
 -- Binders
 require("ClientBinders"):AfterInit()

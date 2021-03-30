@@ -47,7 +47,7 @@ function Placement.new(SalonObject, itemName)
     self.ObjectSize = self.Object.PrimaryPart.Size
     self.Rotation = 0
 
-    self.Mouse.TargetFilter = self.Object
+    self.Mouse.TargetFilter = self.Salon
 
     -- Create raycastParams
     self.RaycastParams = RaycastParams.new()
@@ -88,7 +88,6 @@ end
 --// Updates the position relative to the mouse
 function Placement:_UpdatePosition()
     local clampedPosition = self:_ClampVector(self.Mouse.Hit.Position)
-
 
     self.DummyPart.CFrame = clampedPosition
     self.Object:SetPrimaryPartCFrame(self.Object.PrimaryPart.CFrame:Lerp(

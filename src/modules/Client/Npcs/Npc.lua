@@ -13,59 +13,84 @@ local NetworkService = require("NetworkService")
 local Templates = require("FurnitureTemplates")
 local BaseObject = require('BaseObject')
 
-local StateExchange = {
-    [1] = "SecretaryDesk",
-    [2] = "WaitingChair",
-    [3] = "ShampooStation",
-    [4] = "CuttingStation"
-}
-
 local Npc = setmetatable({}, BaseObject)
 Npc.__index = Npc
 
-function Npc.new(npcName, spawnPoint)
+function Npc.new(salon, npcName, spawnPoint)
     local self = setmetatable(BaseObject.new(), Npc)
 
+    self.Salon = salon
+    self.Placements = self.Salon.Placements
+
+    -- Clone np
     self.Character = Templates:Clone(npcName)
     self.Character.Parent = Workspace
     self.Character:SetPrimaryPartCFrame(spawnPoint)
+    self._maid:GiveTask(self.Character)
 
+    -- Create proximity prompt
+    self.Prompt = Instance.new("ProximityPrompt")
+    self.Prompt.Parent = self.Character.PrimaryPart
+    self.Prompt.RequiresLineOfSight = false
+    self.Prompt.ActionText = "Interact"
+    self.Prompt.ObjectText = npcName
+    self.Prompt.HoldDuration = 5
+    self.Prompt.Enabled = false
+    self._maid:GiveTask(self.Prompt)
+
+    self.State = 1
+    self.LastState = 1
+    self.StateLock = false
+    
+    -- Get salon
     NetworkService:Request("RequestSalon"):Then(function(salon)
         self.Salon = salon
     end)
 
-    self.State = 1
-
-    self.Prompt = Instance.new("ProximityPrompt")
-    self.Prompt.Parent = self.Character.PrimaryPart
-    self.Prompt.HoldDuration = 0
-    self.Prompt.ObjectText = npcName
-    self.Prompt.ActionText = "Interact"
-    self.Prompt.RequiresLineOfSight = false
-    self.Prompt.Enabled = false
-    
     return self
 end
 
-function Npc:AdvanceState()
-    self.State += 1
+--// Exits the NPC
+function Npc:Exit()
+    local exitPoint = self.Salon.NpcExitPoint.Position
 
-    return StateExchange[self.State]
+    -- Move to exit
+    self:MoveToPoint(exitPoint)
+
+    -- Method call yields, so we can just cleanup
+    -- here without any problems
+    self:Destroy()
 end
 
+--// Makes the NPC wait at the 
+function Npc:Wait()
+    local waitingChair = self.Placements:FindFirstChild("WaitingChair")
+    local position = waitingChair:GetPrimaryPartCFrame().Position
+
+    -- Move character to chair
+    self:MoveToPoint(position)
+
+    -- Make character sit
+    self.Character:SetPrimaryPartCFrame(waitingChair:FindFirstChildOfClass("Seat").CFrame)
+end
+
+--// Plays and animation on the character
 function Npc:RunAnimation(animationId)
     local animation = Instance.new("Animation")
     animation.AnimationId = string.format("rbxassetid://%s", animationId)
+    self._maid:GiveTask(animation)
 
     local track = self.Character.Humanoid:LoadAnimation(animation)
     track:Play()
 end
 
 function Npc:MoveToPoint(point)
+    -- Generate path waypoints
     local path = PathfindingService:FindPathAsync(self.Character.PrimaryPart.Position, point)
     local waypoints = path:GetWaypoints()
     local normalizedWaypoints = {}
 
+    -- Create a position buffer so we can tween position of character
     local positionBuffer = Instance.new("CFrameValue")
     positionBuffer.Value = self.Character.PrimaryPart.CFrame
     positionBuffer.Changed:Connect(function(newCFrame)
@@ -81,12 +106,10 @@ function Npc:MoveToPoint(point)
         )
     end
 
-    local animation = Instance.new("Animation")
-    animation.AnimationId = "rbxassetid://2510202577"
+    -- Play walking animation
+    self:RunAnimation("2510202577")
 
-    local track = self.Character.Humanoid:LoadAnimation(animation)
-    track:Play()
-
+    -- Move throughout waypoints, YIELDS
     for i, waypoint in pairs(normalizedWaypoints) do
         local tween = TweenService:Create(
             positionBuffer,
@@ -94,10 +117,12 @@ function Npc:MoveToPoint(point)
             {Value = CFrame.new(waypoint, (normalizedWaypoints[i + 1] and normalizedWaypoints[i + 1] or positionBuffer.Value.LookVector))}
         )
 
+        -- Play and wait for tween to complete
         tween:Play()
         tween.Completed:Wait()
     end
 
+    -- Stop all animations after character is done moving
     for _, track in pairs(self.Character.Humanoid:GetPlayingAnimationTracks()) do
         if (track.Animation.AnimationId == "rbxassetid://2510196951") then continue end
 
@@ -106,7 +131,7 @@ function Npc:MoveToPoint(point)
 end
 
 function Npc:Destroy()
-    
+    self._maid:Destroy()
 end
 
 return Npc
